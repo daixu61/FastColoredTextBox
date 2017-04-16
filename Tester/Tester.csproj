@@ -47,77 +47,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutocompleteSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AutocompleteSample.Designer.cs">
-      <DependentUpon>AutocompleteSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AutocompleteSample2.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AutocompleteSample2.Designer.cs">
-      <DependentUpon>AutocompleteSample2.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AutoIndentSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AutoIndentSample.Designer.cs">
-      <DependentUpon>AutoIndentSample.cs</DependentUpon>
-    </Compile>
     <Compile Include="BilingualHighlighterSample.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="BilingualHighlighterSample.Designer.cs">
       <DependentUpon>BilingualHighlighterSample.cs</DependentUpon>
     </Compile>
-    <Compile Include="ConsoleSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConsoleSample.Designer.cs">
-      <DependentUpon>ConsoleSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AutocompleteSample3.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AutocompleteSample3.Designer.cs">
-      <DependentUpon>AutocompleteSample3.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AutocompleteSample4.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AutocompleteSample4.Designer.cs">
-      <DependentUpon>AutocompleteSample4.cs</DependentUpon>
-    </Compile>
-    <Compile Include="AutoIndentCharsSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="AutoIndentCharsSample.Designer.cs">
-      <DependentUpon>AutoIndentCharsSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CustomWordWrapSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CustomWordWrapSample.Designer.cs">
-      <DependentUpon>CustomWordWrapSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CustomScrollBarsSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CustomScrollBarsSample.Designer.cs">
-      <DependentUpon>CustomScrollBarsSample.cs</DependentUpon>
-    </Compile>
     <Compile Include="DiffMergeSample.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DiffMergeSample.Designer.cs">
       <DependentUpon>DiffMergeSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="DocumentMapSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="DocumentMapSample.Designer.cs">
-      <DependentUpon>DocumentMapSample.cs</DependentUpon>
     </Compile>
     <Compile Include="RulerSample.cs">
       <SubType>Form</SubType>
@@ -161,23 +101,11 @@
     <Compile Include="CustomTextSourceSample.Designer.cs">
       <DependentUpon>CustomTextSourceSample.cs</DependentUpon>
     </Compile>
-    <Compile Include="CustomFoldingSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CustomFoldingSample.Designer.cs">
-      <DependentUpon>CustomFoldingSample.cs</DependentUpon>
-    </Compile>
     <Compile Include="HintSample.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="HintSample.Designer.cs">
       <DependentUpon>HintSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="HyperlinkSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HyperlinkSample.Designer.cs">
-      <DependentUpon>HyperlinkSample.cs</DependentUpon>
     </Compile>
     <Compile Include="LazyLoadingSample.cs">
       <SubType>Form</SubType>
@@ -191,12 +119,6 @@
     <Compile Include="Sandbox.Designer.cs">
       <DependentUpon>Sandbox.cs</DependentUpon>
     </Compile>
-    <Compile Include="SplitSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="SplitSample.Designer.cs">
-      <DependentUpon>SplitSample.cs</DependentUpon>
-    </Compile>
     <Compile Include="TooltipSample.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -208,12 +130,6 @@
     </Compile>
     <Compile Include="GifImageDrawingSample.Designer.cs">
       <DependentUpon>GifImageDrawingSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="LoggerSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LoggerSample.Designer.cs">
-      <DependentUpon>LoggerSample.cs</DependentUpon>
     </Compile>
     <Compile Include="MarkerToolSample.cs">
       <SubType>Form</SubType>
@@ -238,18 +154,6 @@
     </Compile>
     <Compile Include="IMEsample.Designer.cs">
       <DependentUpon>IMEsample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="JokeSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="JokeSample.Designer.cs">
-      <DependentUpon>JokeSample.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PowerfulCSharpEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PowerfulCSharpEditor.Designer.cs">
-      <DependentUpon>PowerfulCSharpEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="SimplestCodeFoldingSample.cs">
       <SubType>Form</SubType>
@@ -287,52 +191,13 @@
     <Compile Include="PowerfulSample.Designer.cs">
       <DependentUpon>PowerfulSample.cs</DependentUpon>
     </Compile>
-    <Compile Include="BookmarksSample.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BookmarksSample.Designer.cs">
-      <DependentUpon>BookmarksSample.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AutocompleteSample.resx">
-      <DependentUpon>AutocompleteSample.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AutocompleteSample2.resx">
-      <DependentUpon>AutocompleteSample2.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AutoIndentSample.resx">
-      <DependentUpon>AutoIndentSample.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="BilingualHighlighterSample.resx">
       <DependentUpon>BilingualHighlighterSample.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ConsoleSample.resx">
-      <DependentUpon>ConsoleSample.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AutocompleteSample3.resx">
-      <DependentUpon>AutocompleteSample3.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AutocompleteSample4.resx">
-      <DependentUpon>AutocompleteSample4.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AutoIndentCharsSample.resx">
-      <DependentUpon>AutoIndentCharsSample.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="CustomWordWrapSample.resx">
-      <DependentUpon>CustomWordWrapSample.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="CustomScrollBarsSample.resx">
-      <DependentUpon>CustomScrollBarsSample.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="DiffMergeSample.resx">
       <DependentUpon>DiffMergeSample.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DocumentMapSample.resx">
-      <DependentUpon>DocumentMapSample.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="RulerSample.resx">
       <DependentUpon>RulerSample.cs</DependentUpon>
@@ -355,10 +220,6 @@
     <EmbeddedResource Include="CustomTextSourceSample.resx">
       <DependentUpon>CustomTextSourceSample.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CustomFoldingSample.resx">
-      <DependentUpon>CustomFoldingSample.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="CustomStyleSample.resx">
       <DependentUpon>CustomStyleSample.cs</DependentUpon>
     </EmbeddedResource>
@@ -371,27 +232,15 @@
     <EmbeddedResource Include="HintSample.resx">
       <DependentUpon>HintSample.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HyperlinkSample.resx">
-      <DependentUpon>HyperlinkSample.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="IMEsample.resx">
       <DependentUpon>IMEsample.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="JokeSample.resx">
-      <DependentUpon>JokeSample.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="LazyLoadingSample.resx">
       <DependentUpon>LazyLoadingSample.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LoggerSample.resx">
-      <DependentUpon>LoggerSample.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MarkerToolSample.resx">
       <DependentUpon>MarkerToolSample.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PowerfulCSharpEditor.resx">
-      <DependentUpon>PowerfulCSharpEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Sandbox.resx">
       <DependentUpon>Sandbox.cs</DependentUpon>
@@ -401,9 +250,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SimplestSyntaxHighlightingSample.resx">
       <DependentUpon>SimplestSyntaxHighlightingSample.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SplitSample.resx">
-      <DependentUpon>SplitSample.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SyntaxHighlightingByXmlDescription.resx">
       <DependentUpon>SyntaxHighlightingByXmlDescription.cs</DependentUpon>
@@ -420,10 +266,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PowerfulSample.resx">
       <DependentUpon>PowerfulSample.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BookmarksSample.resx">
-      <DependentUpon>BookmarksSample.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

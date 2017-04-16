@@ -43,20 +43,12 @@ namespace Tester
             new SimplestSyntaxHighlightingSample().Show();
         }
 
-        private void button6_Click(object sender, EventArgs e)
-        {
-            new JokeSample().Show();
-        }
 
         private void button7_Click(object sender, EventArgs e)
         {
             new SimplestCodeFoldingSample().Show();
         }
 
-        private void button8_Click(object sender, EventArgs e)
-        {
-            new AutocompleteSample().Show();
-        }
 
         private void button9_Click(object sender, EventArgs e)
         {
@@ -73,69 +65,29 @@ namespace Tester
             new IMEsample().Show();
         }
 
-        private void button12_Click(object sender, EventArgs e)
-        {
-            new PowerfulCSharpEditor().Show();
-        }
 
         private void button13_Click(object sender, EventArgs e)
         {
             new GifImageDrawingSample().Show();
         }
 
-        private void button14_Click(object sender, EventArgs e)
-        {
-            new AutocompleteSample2().Show();
-        }
-
-        private void button15_Click(object sender, EventArgs e)
-        {
-            new AutoIndentSample().Show();
-        }
-
-        private void button16_Click(object sender, EventArgs e)
-        {
-            new BookmarksSample().Show();
-        }
-
-        private void button17_Click(object sender, EventArgs e)
-        {
-            new LoggerSample().Show();
-        }
 
         private void button18_Click(object sender, EventArgs e)
         {
             new TooltipSample().Show();
         }
 
-        private void button19_Click(object sender, EventArgs e)
-        {
-            new SplitSample().Show();
-        }
+
 
         private void button20_Click(object sender, EventArgs e)
         {
             new LazyLoadingSample().Show();
         }
 
-        private void button21_Click(object sender, EventArgs e)
-        {
-            new ConsoleSample().Show();
-        }
-
-        private void button22_Click(object sender, EventArgs e)
-        {
-            new CustomFoldingSample().Show();
-        }
 
         private void button23_Click(object sender, EventArgs e)
         {
             new BilingualHighlighterSample().Show();
-        }
-
-        private void button24_Click(object sender, EventArgs e)
-        {
-            new HyperlinkSample().Show();
         }
 
         private void button25_Click(object sender, EventArgs e)
@@ -178,39 +130,11 @@ namespace Tester
             new RulerSample().Show();
         }
 
-        private void button32_Click(object sender, EventArgs e)
-        {
-            new AutocompleteSample3().Show();
-        }
-
-        private void button33_Click(object sender, EventArgs e)
-        {
-            new AutocompleteSample4().Show(); 
-        }
-
-        private void button34_Click(object sender, EventArgs e)
-        {
-            new DocumentMapSample().Show();
-        }
 
         private void button35_Click(object sender, EventArgs e)
         {
             new DiffMergeSample().Show();
         }
 
-        private void button36_Click(object sender, EventArgs e)
-        {
-            new CustomScrollBarsSample().Show();
-        }
-
-        private void button37_Click(object sender, EventArgs e)
-        {
-            new CustomWordWrapSample().Show();
-        }
-
-        private void button38_Click(object sender, EventArgs e)
-        {
-            new AutoIndentCharsSample().Show();
-        }
     }
 }

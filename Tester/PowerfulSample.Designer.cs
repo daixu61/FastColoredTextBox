@@ -411,13 +411,6 @@ namespace Tester
             this.hTMLToolStripMenuItem1.Text = "HTML";
             this.hTMLToolStripMenuItem1.Click += new System.EventHandler(this.hTMLToolStripMenuItem1_Click);
             // 
-            // rTFToolStripMenuItem
-            // 
-            this.rTFToolStripMenuItem.Name = "rTFToolStripMenuItem";
-            this.rTFToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.rTFToolStripMenuItem.Text = "RTF";
-            this.rTFToolStripMenuItem.Click += new System.EventHandler(this.rTFToolStripMenuItem_Click);
-            // 
             // miChangeColors
             // 
             this.miChangeColors.Enabled = false;

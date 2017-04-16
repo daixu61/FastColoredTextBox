@@ -64,7 +64,6 @@ namespace FastColoredTextBoxNS
         public int TextHeight;
         public bool AllowInsertRemoveLines = true;
         private Brush backBrush;
-        private BaseBookmarks bookmarks;
         private bool caretVisible;
         private Color changedLineColor;
         private int charHeight;
@@ -192,8 +191,6 @@ namespace FastColoredTextBoxNS
             AllowDrop = true;
             FindEndOfFoldingBlockStrategy = FindEndOfFoldingBlockStrategy.Strategy1;
             VirtualSpace = false;
-            bookmarks = new Bookmarks(this);
-            BookmarkColor = Color.PowderBlue;
             ToolTip = new ToolTip();
             timer3.Interval = 500;
             hints = new Hints(this);
@@ -319,25 +316,6 @@ namespace FastColoredTextBoxNS
         [Browsable(true)]
         [Description("ToolTip component.")]
         public ToolTip ToolTip { get; set; }
-
-        /// <summary>
-        /// Color of bookmarks
-        /// </summary>
-        [Browsable(true)]
-        [DefaultValue(typeof (Color), "PowderBlue")]
-        [Description("Color of bookmarks.")]
-        public Color BookmarkColor { get; set; }
-
-        /// <summary>
-        /// Bookmarks
-        /// </summary>
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-         EditorBrowsable(EditorBrowsableState.Never)]
-        public BaseBookmarks Bookmarks
-        {
-            get { return bookmarks; }
-            set { bookmarks = value; }
-        }
 
         /// <summary>
         /// Enables virtual spaces
@@ -1429,19 +1407,6 @@ namespace FastColoredTextBoxNS
             }
         }
 
-        /// <summary>
-        /// Gets colored text as RTF
-        /// </summary>
-        /// <remarks>For more flexibility you can use ExportToRTF class also</remarks>
-        [Browsable(false)]
-        public string Rtf
-        {
-            get
-            {
-                var exporter = new ExportToRTF();
-                return exporter.GetRtf(this);
-            }
-        }
 
         /// <summary>
         /// Text of current selection
@@ -2048,8 +2013,6 @@ namespace FastColoredTextBoxNS
 
             LineInfos.Clear();
             ClearHints();
-            if (Bookmarks != null)
-                Bookmarks.Clear();
 
             lines = ts;
 
@@ -2485,7 +2448,6 @@ namespace FastColoredTextBoxNS
 
             data.SetData(DataFormats.UnicodeText, true, Selection.Text);
             data.SetData(DataFormats.Html, PrepareHtmlForClipboard(html));
-            data.SetData(DataFormats.Rtf, new ExportToRTF().GetRtf(Selection.Clone()));
         }
 
         [DllImport("user32.dll")]
@@ -3718,22 +3680,6 @@ namespace FastColoredTextBoxNS
                     NavigateForward();
                     break;
 
-                case FCTBAction.UnbookmarkLine:
-                    UnbookmarkLine(Selection.Start.iLine);
-                    break;
-
-                case FCTBAction.BookmarkLine:
-                    BookmarkLine(Selection.Start.iLine);
-                    break;
-
-                case FCTBAction.GoNextBookmark:
-                    GotoNextBookmark(Selection.Start.iLine);
-                    break;
-
-                case FCTBAction.GoPrevBookmark:
-                    GotoPrevBookmark(Selection.Start.iLine);
-                    break;
-
                 case FCTBAction.ClearWordLeft:
                     if (OnKeyPressing('\b')) //KeyPress event processed key
                         break;
@@ -4003,101 +3949,6 @@ namespace FastColoredTextBoxNS
         private void RestoreFontSize()
         {
             Zoom = 100;
-        }
-
-        /// <summary>
-        /// Scrolls to nearest bookmark or to first bookmark
-        /// </summary>
-        /// <param name="iLine">Current bookmark line index</param>
-        public bool GotoNextBookmark(int iLine)
-        {
-            Bookmark nearestBookmark = null;
-            int minNextLineIndex = int.MaxValue;
-            Bookmark minBookmark = null;
-            int minLineIndex = int.MaxValue;
-            foreach (Bookmark bookmark in bookmarks)
-            {
-                if (bookmark.LineIndex < minLineIndex)
-                {
-                    minLineIndex = bookmark.LineIndex;
-                    minBookmark = bookmark;
-                }
-
-                if (bookmark.LineIndex > iLine && bookmark.LineIndex < minNextLineIndex)
-                {
-                    minNextLineIndex = bookmark.LineIndex;
-                    nearestBookmark = bookmark;
-                }
-            }
-
-            if (nearestBookmark != null)
-            {
-                nearestBookmark.DoVisible();
-                return true;
-            }
-            else if (minBookmark != null)
-            {
-                minBookmark.DoVisible();
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Scrolls to nearest previous bookmark or to last bookmark
-        /// </summary>
-        /// <param name="iLine">Current bookmark line index</param>
-        public bool GotoPrevBookmark(int iLine)
-        {
-            Bookmark nearestBookmark = null;
-            int maxPrevLineIndex = -1;
-            Bookmark maxBookmark = null;
-            int maxLineIndex = -1;
-            foreach (Bookmark bookmark in bookmarks)
-            {
-                if (bookmark.LineIndex > maxLineIndex)
-                {
-                    maxLineIndex = bookmark.LineIndex;
-                    maxBookmark = bookmark;
-                }
-
-                if (bookmark.LineIndex < iLine && bookmark.LineIndex > maxPrevLineIndex)
-                {
-                    maxPrevLineIndex = bookmark.LineIndex;
-                    nearestBookmark = bookmark;
-                }
-            }
-
-            if (nearestBookmark != null)
-            {
-                nearestBookmark.DoVisible();
-                return true;
-            }
-            else if (maxBookmark != null)
-            {
-                maxBookmark.DoVisible();
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Bookmarks line
-        /// </summary>
-        public virtual void BookmarkLine(int iLine)
-        {
-            if (!bookmarks.Contains(iLine))
-                bookmarks.Add(iLine);
-        }
-
-        /// <summary>
-        /// Unbookmarks current line
-        /// </summary>
-        public virtual void UnbookmarkLine(int iLine)
-        {
-            bookmarks.Remove(iLine);
         }
 
         /// <summary>
@@ -4991,10 +4842,6 @@ namespace FastColoredTextBoxNS
             var x = LeftIndent + Paddings.Left - HorizontalScroll.Value;
             if (x < LeftIndent)
                 firstChar++;
-            //create dictionary of bookmarks
-            var bookmarksByLineIndex = new Dictionary<int, Bookmark>();
-            foreach (Bookmark item in bookmarks)
-                bookmarksByLineIndex[item.LineIndex] = item;
             //
             int startLine = YtoLineIndex(VerticalScroll.Value);
             int iLine;
@@ -5034,12 +4881,7 @@ namespace FastColoredTextBoxNS
                                              new RectangleF(-10, y, LeftIndent - minLeftIndent - 2 + 10, CharHeight + 1));
                 //
                 e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                //
-                //draw bookmark
-                if (bookmarksByLineIndex.ContainsKey(iLine))
-                    bookmarksByLineIndex[iLine].Paint(e.Graphics,
-                                                      new Rectangle(LeftIndent, y, Width,
-                                                                    CharHeight*lineInfo.WordWrapStringsCount));
+
                 //OnPaintLine event
                 if (lineInfo.VisibleState == VisibleState.Visible)
                     OnPaintLine(new PaintLineEventArgs(iLine,
