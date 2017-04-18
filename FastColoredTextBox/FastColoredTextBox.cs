@@ -107,7 +107,7 @@ namespace FastColoredTextBoxNS
         private bool needRiseTextChangedDelayed;
         private bool needRiseVisibleRangeChangedDelayed;
         private Color paddingBackColor;
-        private int preferredLineWidth;
+        private int preferredLineLength;
         private Range rightBracketPosition;
         private Range rightBracketPosition2;
         private bool scrollBars;
@@ -782,10 +782,10 @@ namespace FastColoredTextBoxNS
         [Description("This property draws vertical line after defined char position. Set to 0 for disable drawing of vertical line.")]
         public int PreferredLineWidth
         {
-            get { return preferredLineWidth; }
+            get { return preferredLineLength; }
             set
             {
-                preferredLineWidth = value;
+                preferredLineLength = value;
                 Invalidate();
             }
         }
@@ -1514,14 +1514,17 @@ namespace FastColoredTextBoxNS
         {
             BaseFont = newFont;
             //check monospace font
-            SizeF sizeM = GetCharSize(BaseFont, 'M');
-            SizeF sizeDot = GetCharSize(BaseFont, '.');
-            if (sizeM != sizeDot)
-                BaseFont = new Font("Courier New", BaseFont.SizeInPoints, FontStyle.Regular, GraphicsUnit.Point);
-            //clac size
-            SizeF size = GetCharSize(BaseFont, 'M');
-            CharWidth = (int) Math.Round(size.Width*1f /*0.85*/) - 1 /*0*/;
-            CharHeight = lineInterval + (int) Math.Round(size.Height*1f /*0.9*/) - 1 /*0*/;
+            using (Graphics gr = this.CreateGraphics())
+            {
+                SizeF sizeM = GetCharSize(gr, BaseFont, 'M');
+                SizeF sizeDot = GetCharSize(gr, BaseFont, '.');
+                if (sizeM != sizeDot)
+                    BaseFont = new Font("Courier New", BaseFont.SizeInPoints, FontStyle.Regular, GraphicsUnit.Point);
+                //clac size
+                SizeF size = GetCharSize(gr, BaseFont, 'M');
+                CharWidth = (int)Math.Round(size.Width * 1f /*0.85*/) - 1 /*0*/;
+                CharHeight = lineInterval + (int)Math.Round(size.Height * 1f /*0.9*/) - 1 /*0*/;
+            }
             //
             //if (wordWrap)
             //    RecalcWordWrap(0, Lines.Count - 1);
@@ -2884,12 +2887,12 @@ namespace FastColoredTextBoxNS
             return i;
         }
 
-        public static SizeF GetCharSize(Font font, char c)
+        public static SizeF GetCharSize(Graphics gr, Font font, char c)
         {
-            Size sz2 = TextRenderer.MeasureText("<" + c.ToString() + ">", font);
-            Size sz3 = TextRenderer.MeasureText("<>", font);
+            SizeF sz3 = gr.MeasureString("<" + c.ToString() + ">", font);
+            SizeF sz2 = gr.MeasureString("<>", font);
 
-            return new SizeF(sz2.Width - sz3.Width + 1, /*sz2.Height*/font.Height);
+            return new SizeF(sz3.Width - sz2.Width + 1, /*sz2.Height*/font.Height);
         }
 
         [DllImport("Imm32.dll")]
@@ -3111,7 +3114,7 @@ namespace FastColoredTextBoxNS
                     case WordWrapMode.WordWrapPreferredWidth:
                     case WordWrapMode.CharWrapPreferredWidth:
                         maxLineLength = Math.Min(maxLineLength, PreferredLineWidth);
-                        minWidth = LeftIndent + PreferredLineWidth*CharWidth + 2 + Paddings.Left + Paddings.Right;
+                        minWidth = LeftIndent + PreferredLineWidth * CharWidth + 2 + Paddings.Left + Paddings.Right;
                         break;
                 }
         }
@@ -3167,7 +3170,7 @@ namespace FastColoredTextBoxNS
                         return ClientSize.Width;
                     case WordWrapMode.WordWrapPreferredWidth:
                     case WordWrapMode.CharWrapPreferredWidth:
-                        return LeftIndent + PreferredLineWidth*CharWidth + 2 + Paddings.Left + Paddings.Right;
+                        return LeftIndent + PreferredLineWidth * CharWidth + 2 + Paddings.Left + Paddings.Right;
                 }
 
             return int.MaxValue;
@@ -3175,6 +3178,7 @@ namespace FastColoredTextBoxNS
 
         private void RecalcWordWrap(int fromLine, int toLine)
         {
+            int maxLineWidth = 0;
             int maxCharsPerLine = 0;
             bool charWrap = false;
 
@@ -3183,16 +3187,22 @@ namespace FastColoredTextBoxNS
             switch (WordWrapMode)
             {
                 case WordWrapMode.WordWrapControlWidth:
-                    maxCharsPerLine = (ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right)/CharWidth;
+                    maxLineWidth = ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right;
+                    maxCharsPerLine = maxLineWidth / CharWidth;
+                    charWrap = false;
                     break;
                 case WordWrapMode.CharWrapControlWidth:
-                    maxCharsPerLine = (ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right)/CharWidth;
+                    maxLineWidth = ClientSize.Width - LeftIndent - Paddings.Left - Paddings.Right;
+                    maxCharsPerLine = maxLineWidth / CharWidth;
                     charWrap = true;
                     break;
                 case WordWrapMode.WordWrapPreferredWidth:
+                    maxLineWidth = PreferredLineWidth * CharWidth;
                     maxCharsPerLine = PreferredLineWidth;
+                    charWrap = false;
                     break;
                 case WordWrapMode.CharWrapPreferredWidth:
+                    maxLineWidth = PreferredLineWidth * CharWidth;
                     maxCharsPerLine = PreferredLineWidth;
                     charWrap = true;
                     break;
@@ -3215,8 +3225,9 @@ namespace FastColoredTextBoxNS
                                 WordWrapNeeded(this, new WordWrapNeededEventArgs(li.CutOffPositions, ImeAllowed, lines[iLine]));
                         }
                         else
-                            CalcCutOffs(li.CutOffPositions, maxCharsPerLine, maxCharsPerLine - li.wordWrapIndent, ImeAllowed, charWrap, lines[iLine]);
-
+                        {
+                            CalcCutOffs(li.CutOffPositions, maxLineWidth, maxCharsPerLine, maxCharsPerLine - li.wordWrapIndent, charWrap, lines[iLine]);
+                        }
                         LineInfos[iLine] = li;
                     }
                 }
@@ -3226,49 +3237,71 @@ namespace FastColoredTextBoxNS
         /// <summary>
         /// Calculates wordwrap cutoffs
         /// </summary>
-        public static void CalcCutOffs(List<int> cutOffPositions, int maxCharsPerLine, int maxCharsPerSecondaryLine, bool allowIME, bool charWrap, Line line)
+        public void CalcCutOffs(List<int> cutOffPositions, int maxLineWidth, int maxCharsPerLine, int maxCharsPerSecondaryLine, bool charWrap, Line line)
         {
-            if (maxCharsPerSecondaryLine < 1) maxCharsPerSecondaryLine = 1;
-            if (maxCharsPerLine < 1) maxCharsPerLine = 1;
+            if (maxCharsPerSecondaryLine < 1)
+                maxCharsPerSecondaryLine = 1;
+            if (maxCharsPerLine < 1)
+                maxCharsPerLine = 1;
 
+            var charWidths = new float[line.Count];
+            float segmentWidth=0f;
             int segmentLength = 0;
             int cutOff = 0;
             cutOffPositions.Clear();
 
-            for (int i = 0; i < line.Count - 1; i++)
+            using (Graphics gr = this.CreateGraphics())
             {
-                char c = line[i].c;
-                if (charWrap)
+                for (int i = 0; i < line.Count - 1; i++)
                 {
-                    //char wrapping
-                    cutOff = i + 1;
-                }
-                else
-                {
-                    //word wrapping
-                    if (allowIME && IsCJKLetter(c))//in CJK languages cutoff can be in any letter
+                    char c = line[i].c;
+                    if (charWrap)
                     {
-                        cutOff = i;
+                        //char wrapping
+                        cutOff = i + 1;
                     }
                     else
-                    if (!char.IsLetterOrDigit(c) && c != '_' && c != '\'' && c != '\xa0' 
-                        && ((c != '.' && c!= ',') || !char.IsDigit(line[i + 1].c)))//dot before digit
-                        cutOff = Math.Min(i + 1, line.Count - 1);
-                }
+                    {
+                        //word wrapping
+                        if (IsCJKLetter(c))//in CJK languages cutoff can be in any letter
+                        {
+                            cutOff = i;
+                        }
+                        else
+                        if (!char.IsLetterOrDigit(c) && c != '_' && c != '\'' && c != '\xa0'
+                            && ((c != '.' && c != ',') || !char.IsDigit(line[i + 1].c)))//dot before digit
+                            cutOff = Math.Min(i + 1, line.Count - 1);
+                    }
 
-                segmentLength++;
+                    SizeF charSize = gr.MeasureString(c.ToString(), this.Font);
+                    charWidths[i] = charSize.Width;
+                    segmentWidth += charSize.Width;
 
-                if (segmentLength == maxCharsPerLine)
-                {
-                    if (cutOff == 0 || (cutOffPositions.Count > 0 && cutOff == cutOffPositions[cutOffPositions.Count - 1]))
-                        cutOff = i + 1;
-                    cutOffPositions.Add(cutOff);
-                    segmentLength = 1 + i - cutOff;
-                    maxCharsPerLine = maxCharsPerSecondaryLine;
+                    segmentLength++;
+
+                    if (segmentLength >= maxCharsPerLine || segmentWidth> maxLineWidth)
+                    {
+                        if (cutOff == 0 || (cutOffPositions.Count > 0 && cutOff == cutOffPositions[cutOffPositions.Count - 1]))
+                            cutOff = i + 1;
+                        cutOffPositions.Add(cutOff);
+                        segmentLength = 1 + i - cutOff;
+
+                        //Reset sement width
+                        segmentWidth = 0f;  
+                        for (int j=0;j< segmentLength; j++)
+                        {
+                            segmentWidth += charWidths[i-j];
+                        }
+
+                        maxCharsPerLine = maxCharsPerSecondaryLine;
+                    }
                 }
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public static bool IsCJKLetter(char c)
         {
             int code = Convert.ToInt32(c);
@@ -4976,10 +5009,10 @@ namespace FastColoredTextBoxNS
             if (PreferredLineWidth > 0)
                 e.Graphics.DrawLine(servicePen,
                                     new Point(
-                                        LeftIndent + Paddings.Left + PreferredLineWidth*CharWidth -
+                                        LeftIndent + Paddings.Left + PreferredLineWidth * CharWidth -
                                         HorizontalScroll.Value + 1, textAreaRect.Top + 1),
                                     new Point(
-                                        LeftIndent + Paddings.Left + PreferredLineWidth*CharWidth -
+                                        LeftIndent + Paddings.Left + PreferredLineWidth * CharWidth -
                                         HorizontalScroll.Value + 1, textAreaRect.Bottom - 1));
 
             //draw text area border
@@ -8307,7 +8340,7 @@ window.status = ""#print"";
         WordWrapControlWidth,
 
         /// <summary>
-        /// Word wrapping by preferred line width (PreferredLineWidth)
+        /// Word wrapping by preferred line width (PreferredLineLength, preferred chars per line)
         /// </summary>
         WordWrapPreferredWidth,
 
@@ -8317,7 +8350,7 @@ window.status = ""#print"";
         CharWrapControlWidth,
 
         /// <summary>
-        /// Char wrapping by preferred line width (PreferredLineWidth)
+        /// Char wrapping by preferred line width (PreferredLineLength, preferred chars per line)
         /// </summary>
         CharWrapPreferredWidth,
 

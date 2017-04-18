@@ -106,14 +106,14 @@ namespace FastColoredTextBoxNS
         public Brush BackgroundBrush { get; set; }
         public FontStyle FontStyle { get; set; }
         //public readonly Font Font;
-        public StringFormat stringFormat;
+        public StringFormat StringFormat;
 
         public TextStyle(Brush foreBrush, Brush backgroundBrush, FontStyle fontStyle)
         {
             this.ForeBrush = foreBrush;
             this.BackgroundBrush = backgroundBrush;
             this.FontStyle = fontStyle;
-            stringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
+            StringFormat = new StringFormat(StringFormatFlags.MeasureTrailingSpaces);
         }
 
         public override void Draw(Graphics gr, Point position, Range range)
@@ -125,38 +125,18 @@ namespace FastColoredTextBoxNS
             using(var f = new Font(range.tb.Font, FontStyle))
             {
                 Line line = range.tb[range.Start.iLine];
-                float dx = range.tb.CharWidth;
                 float y = position.Y + range.tb.LineInterval/2;
                 float x = position.X - range.tb.CharWidth/3;
 
                 if (ForeBrush == null)
                     ForeBrush = new SolidBrush(range.tb.ForeColor);
 
-                if (range.tb.ImeAllowed)
+                // Have to calculate width for every char  in consideration of widechar.
+                for (int i = range.Start.iChar; i < range.End.iChar; i++)
                 {
-                    //IME mode
-                    for (int i = range.Start.iChar; i < range.End.iChar; i++)
-                    {
-                        SizeF size = FastColoredTextBox.GetCharSize(f, line[i].c);
-
-                        var gs = gr.Save();
-                        float k = size.Width > range.tb.CharWidth + 1 ? range.tb.CharWidth/size.Width : 1;
-                        gr.TranslateTransform(x, y + (1 - k)*range.tb.CharHeight/2);
-                        gr.ScaleTransform(k, (float) Math.Sqrt(k));
-                        gr.DrawString(line[i].c.ToString(), f, ForeBrush, 0, 0, stringFormat);
-                        gr.Restore(gs);
-                        x += dx;
-                    }
-                }
-                else
-                {
-                    //classic mode 
-                    for (int i = range.Start.iChar; i < range.End.iChar; i++)
-                    {
-                        //draw char
-                        gr.DrawString(line[i].c.ToString(), f, ForeBrush, x, y, stringFormat);
-                        x += dx;
-                    }
+                    SizeF size = FastColoredTextBox.GetCharSize(gr, f, line[i].c);
+                    gr.DrawString(line[i].c.ToString(), f, ForeBrush, x, y, StringFormat);
+                    x += size.Width;
                 }
             }
         }

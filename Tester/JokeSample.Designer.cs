@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(JokeSample));
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.fctb = new FastColoredTextBoxNS.FastColoredTextBox();
+            ((System.ComponentModel.ISupportInitialize)(this.fctb)).BeginInit();
             this.SuspendLayout();
             // 
             // timer1
@@ -42,34 +43,50 @@
             // 
             // fctb
             // 
-            this.fctb.AllowDrop = true;
+            this.fctb.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.fctb.AutoIndent = false;
-            this.fctb.AutoScrollMinSize = new System.Drawing.Size(421, 621);
+            this.fctb.AutoScrollMinSize = new System.Drawing.Size(0, 749);
             this.fctb.BackBrush = null;
+            this.fctb.CharHeight = 27;
+            this.fctb.CharWidth = 15;
             this.fctb.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctb.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fctb.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fctb.Font = new System.Drawing.Font("Courier New", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.fctb.IsReplaceMode = false;
             this.fctb.LeftBracket = '(';
             this.fctb.Location = new System.Drawing.Point(0, 0);
             this.fctb.Name = "fctb";
             this.fctb.Paddings = new System.Windows.Forms.Padding(10);
             this.fctb.RightBracket = ')';
             this.fctb.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctb.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctb.ServiceColors")));
             this.fctb.ShowLineNumbers = false;
-            this.fctb.Size = new System.Drawing.Size(438, 287);
+            this.fctb.Size = new System.Drawing.Size(438, 265);
             this.fctb.TabIndex = 0;
             this.fctb.Text = resources.GetString("fctb.Text");
             this.fctb.WordWrap = true;
+            this.fctb.Zoom = 100;
             // 
             // JokeSample
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(438, 287);
+            this.ClientSize = new System.Drawing.Size(438, 265);
             this.Controls.Add(this.fctb);
             this.Name = "JokeSample";
             this.Text = "JokeSample";
+            ((System.ComponentModel.ISupportInitialize)(this.fctb)).EndInit();
             this.ResumeLayout(false);
 
         }
