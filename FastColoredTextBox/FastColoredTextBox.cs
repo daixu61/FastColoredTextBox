@@ -1513,12 +1513,12 @@ namespace FastColoredTextBoxNS
         private void SetFont(Font newFont)
         {
             BaseFont = newFont;
-            //check monospace font
             using (Graphics gr = this.CreateGraphics())
             {
+                //check monospace font
                 SizeF sizeM = GetCharSize(gr, BaseFont, 'M');
                 SizeF sizeDot = GetCharSize(gr, BaseFont, '.');
-                if (sizeM != sizeDot)
+                if (sizeM != sizeDot) 
                     BaseFont = new Font("Courier New", BaseFont.SizeInPoints, FontStyle.Regular, GraphicsUnit.Point);
                 //clac size
                 SizeF size = GetCharSize(gr, BaseFont, 'M');
@@ -3269,11 +3269,11 @@ namespace FastColoredTextBoxNS
                         }
                         else
                         if (!char.IsLetterOrDigit(c) && c != '_' && c != '\'' && c != '\xa0'
-                            && ((c != '.' && c != ',') || !char.IsDigit(line[i + 1].c)))//dot before digit
+                            && ((c != '.' && c != ',') || (i<line.Count-1 && !char.IsDigit(line[i + 1].c))))//dot before digit
                             cutOff = Math.Min(i + 1, line.Count - 1);
                     }
 
-                    SizeF charSize = gr.MeasureString(c.ToString(), this.Font);
+                    SizeF charSize = FastColoredTextBox.GetCharSize(gr, Font, c);
                     charWidths[i] = charSize.Width;
                     segmentWidth += charSize.Width;
 
@@ -3286,11 +3286,11 @@ namespace FastColoredTextBoxNS
                         cutOffPositions.Add(cutOff);
                         segmentLength = 1 + i - cutOff;
 
-                        //Reset sement width
-                        segmentWidth = 0f;  
-                        for (int j=0;j< segmentLength; j++)
+                        //Reset sement width, by DaiXu61 2017.4.18
+                        segmentWidth = 0f;
+                        for (int j = 0; j < segmentLength; j++)
                         {
-                            segmentWidth += charWidths[i-j];
+                            segmentWidth += charWidths[i - j];
                         }
 
                         maxCharsPerLine = maxCharsPerSecondaryLine;
@@ -6269,14 +6269,36 @@ namespace FastColoredTextBoxNS
             //
             int iWordWrapIndex = LineInfos[place.iLine].GetWordWrapStringIndex(place.iChar);
             y += iWordWrapIndex*CharHeight;
-            int x = (place.iChar - LineInfos[place.iLine].GetWordWrapStringStartPosition(iWordWrapIndex))*CharWidth;
-            if(iWordWrapIndex > 0 )
-                x += LineInfos[place.iLine].wordWrapIndent * CharWidth;
+            // Get actual start Point, by DaiXu61 2017.4.20
+            int startIndex = LineInfos[place.iLine].GetWordWrapStringStartPosition(iWordWrapIndex);
+            if (iWordWrapIndex > 0)
+            {
+                startIndex += LineInfos[place.iLine].wordWrapIndent;
+            }
+            int x = GetWidth(place.iLine, startIndex, place.iChar);
             //
             y = y - VerticalScroll.Value;
             x = LeftIndent + Paddings.Left + x - HorizontalScroll.Value;
 
             return new Point(x, y);
+        }
+
+        public int GetWidth(int iLine, int start, int end)
+        {
+            var line = lines[iLine];
+            if (start > end || end > line.Count)
+            {
+                return 0;
+            }
+            float width = 0f;
+            using (Graphics gr = this.CreateGraphics())
+            {
+                for (int i = start; i < end; i++)
+                {
+                    width += GetCharSize(gr, Font, line[i].c).Width;
+                }
+            }
+            return (int) width;
         }
 
         /// <summary>

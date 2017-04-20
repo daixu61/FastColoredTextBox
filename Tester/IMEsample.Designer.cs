@@ -41,14 +41,25 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(417, 85);
+            this.label1.Size = new System.Drawing.Size(417, 78);
             this.label1.TabIndex = 3;
             this.label1.Text = resources.GetString("label1.Text");
             // 
             // fctb
             // 
+            this.fctb.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.fctb.AutoIndent = false;
-            this.fctb.AutoScrollMinSize = new System.Drawing.Size(0, 264);
+            this.fctb.AutoScrollMinSize = new System.Drawing.Size(0, 504);
             this.fctb.BackBrush = null;
             this.fctb.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.fctb.CharHeight = 24;
@@ -60,22 +71,24 @@
             this.fctb.ImeMode = System.Windows.Forms.ImeMode.On;
             this.fctb.IsReplaceMode = false;
             this.fctb.LeftBracket = '(';
-            this.fctb.Location = new System.Drawing.Point(0, 85);
+            this.fctb.Location = new System.Drawing.Point(0, 78);
             this.fctb.Name = "fctb";
             this.fctb.Paddings = new System.Windows.Forms.Padding(0);
             this.fctb.RightBracket = ')';
             this.fctb.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctb.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctb.ServiceColors")));
             this.fctb.ShowLineNumbers = false;
-            this.fctb.Size = new System.Drawing.Size(417, 217);
+            this.fctb.Size = new System.Drawing.Size(417, 201);
             this.fctb.TabIndex = 2;
             this.fctb.Text = resources.GetString("fctb.Text");
             this.fctb.WordWrap = true;
+            this.fctb.Zoom = 100;
             // 
             // IMEsample
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(417, 302);
+            this.ClientSize = new System.Drawing.Size(417, 279);
             this.Controls.Add(this.fctb);
             this.Controls.Add(this.label1);
             this.Name = "IMEsample";

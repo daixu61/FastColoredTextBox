@@ -126,16 +126,17 @@ namespace FastColoredTextBoxNS
             {
                 Line line = range.tb[range.Start.iLine];
                 float y = position.Y + range.tb.LineInterval/2;
-                float x = position.X - range.tb.CharWidth/3;
+                float x = position.X;// - range.tb.CharWidth/3;
 
                 if (ForeBrush == null)
                     ForeBrush = new SolidBrush(range.tb.ForeColor);
 
-                // Have to calculate width for every char  in consideration of widechar.
+                // Have to calculate width for every char in consideration of widechar.
                 for (int i = range.Start.iChar; i < range.End.iChar; i++)
                 {
+                    char c = line[i].c;
                     SizeF size = FastColoredTextBox.GetCharSize(gr, f, line[i].c);
-                    gr.DrawString(line[i].c.ToString(), f, ForeBrush, x, y, StringFormat);
+                    gr.DrawString(c.ToString(), f, ForeBrush, x, y, StringFormat);
                     x += size.Width;
                 }
             }
