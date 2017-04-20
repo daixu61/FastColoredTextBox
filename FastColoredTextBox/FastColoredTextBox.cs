@@ -5396,20 +5396,24 @@ namespace FastColoredTextBoxNS
                 //render by custom styles
                 StyleIndex currentStyleIndex = StyleIndex.None;
                 int iLastFlushedChar = firstChar - 1;
+                Point pos;  // Actual postion of char, by DaiXu61 2017.4.20
 
                 for (int iChar = firstChar; iChar <= lastChar; iChar++)
                 {
                     StyleIndex style = line[from + iChar].style;
                     if (currentStyleIndex != style)
                     {
+                        pos = PlaceToPoint(new Place(iLastFlushedChar + 1, iLine));
                         FlushRendering(gr, currentStyleIndex,
-                                       new Point(startX + (iLastFlushedChar + 1)*CharWidth, y),
+                                       //new Point(startX + (iLastFlushedChar + 1)*CharWidth,y,
+                                       new Point(startX + pos.X, y),
                                        new Range(this, from + iLastFlushedChar + 1, iLine, from + iChar, iLine));
                         iLastFlushedChar = iChar - 1;
                         currentStyleIndex = style;
                     }
                 }
-                FlushRendering(gr, currentStyleIndex, new Point(startX + (iLastFlushedChar + 1)*CharWidth, y),
+                pos = PlaceToPoint(new Place(iLastFlushedChar + 1, iLine));
+                FlushRendering(gr, currentStyleIndex, new Point(startX + pos.X, y),
                                new Range(this, from + iLastFlushedChar + 1, iLine, from + lastChar + 1, iLine));
             }
 
@@ -5940,7 +5944,7 @@ namespace FastColoredTextBoxNS
             point.Offset(HorizontalScroll.Value, VerticalScroll.Value);
             point.Offset(-LeftIndent - Paddings.Left, 0);
             int iLine = YtoLineIndex(point.Y);
-            var x = (int) Math.Round((float) point.X/CharWidth);
+            var x = (int) Math.Round((float) point.X/CharWidth)
             if (x < 0) x = 0;
             return new Place(x, iLine);
         }
@@ -6208,16 +6212,16 @@ namespace FastColoredTextBoxNS
         /// </summary>
         /// <param name="point">Line and char position</param>
         /// <returns>Point of char</returns>
-        public int PlaceToPosition(Place point)
+        public int PlaceToPosition(Place place)
         {
-            if (point.iLine < 0 || point.iLine >= lines.Count ||
-                point.iChar >= lines[point.iLine].Count + Environment.NewLine.Length)
+            if (place.iLine < 0 || place.iLine >= lines.Count ||
+                place.iChar >= lines[place.iLine].Count + Environment.NewLine.Length)
                 return -1;
 
             int result = 0;
-            for (int i = 0; i < point.iLine; i++)
+            for (int i = 0; i < place.iLine; i++)
                 result += lines[i].Count + Environment.NewLine.Length;
-            result += point.iChar;
+            result += place.iChar;
 
             return result;
         }
