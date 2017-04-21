@@ -125,7 +125,12 @@ namespace FastColoredTextBoxNS
         private int reservedCountOfLineNumberChars = 1;
         private int zoom = 100;
         private Size localAutoScrollMinSize;
- 
+
+        // Cache char width, by DaiXu61, 2017.4.21
+        private Dictionary<Font, Dictionary<char,int>> charWidthCache = new Dictionary<Font, Dictionary<char, int>>();
+        private const TextFormatFlags textFormatFlags =
+            TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.PreserveGraphicsClipping;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1513,18 +1518,17 @@ namespace FastColoredTextBoxNS
         private void SetFont(Font newFont)
         {
             BaseFont = newFont;
-            using (Graphics gr = this.CreateGraphics())
-            {
-                //check monospace font
-                SizeF sizeM = GetCharSize(gr, BaseFont, 'M');
-                SizeF sizeDot = GetCharSize(gr, BaseFont, '.');
-                if (sizeM != sizeDot) 
-                    BaseFont = new Font("Courier New", BaseFont.SizeInPoints, FontStyle.Regular, GraphicsUnit.Point);
-                //clac size
-                SizeF size = GetCharSize(gr, BaseFont, 'M');
-                CharWidth = (int)Math.Round(size.Width * 1f /*0.85*/) - 1 /*0*/;
-                CharHeight = lineInterval + (int)Math.Round(size.Height * 1f /*0.9*/) - 1 /*0*/;
-            }
+            
+            //check monospace font
+            SizeF sizeM = GetCharSize(BaseFont, 'M');
+            SizeF sizeDot = GetCharSize(BaseFont, '.');
+            if (sizeM != sizeDot) 
+                BaseFont = new Font("Courier New", BaseFont.SizeInPoints, FontStyle.Regular, GraphicsUnit.Point);
+            //clac size
+            SizeF size = GetCharSize(BaseFont, 'M');
+            CharWidth = (int)Math.Round(size.Width * 1f /*0.85*/) - 1 /*0*/;
+            CharHeight = lineInterval + (int)Math.Round(size.Height /*1f 0.9*/) - 1 /*0*/;
+      
             //
             //if (wordWrap)
             //    RecalcWordWrap(0, Lines.Count - 1);
@@ -2887,12 +2891,22 @@ namespace FastColoredTextBoxNS
             return i;
         }
 
-        public static SizeF GetCharSize(Graphics gr, Font font, char c)
+        public Size GetCharSize(Font font, char c)
         {
-            SizeF sz3 = gr.MeasureString("<" + c.ToString() + ">", font);
-            SizeF sz2 = gr.MeasureString("<>", font);
-
-            return new SizeF(sz3.Width - sz2.Width + 1, /*sz2.Height*/font.Height);
+            //SizeF sz3 = gr.MeasureString("<" + c.ToString() + ">", font);
+            //SizeF sz2 = gr.MeasureString("<>", font);
+            //return new SizeF(sz3.Width - sz2.Width + 1, /*sz2.Height*/font.Height);
+            Size size;
+            if (!charWidthCache.ContainsKey(font))
+            {
+                charWidthCache.Add(font, new Dictionary<char, int>());
+            }
+            if (!charWidthCache[font].ContainsKey(c))
+            {
+                size = TextRenderer.MeasureText(c.ToString(), font, new Size(short.MaxValue, short.MaxValue), textFormatFlags);
+                charWidthCache[font].Add(c, size.Width);
+            }
+            return new Size(charWidthCache[font][c], font.Height);
         }
 
         [DllImport("Imm32.dll")]
@@ -3250,51 +3264,49 @@ namespace FastColoredTextBoxNS
             int cutOff = 0;
             cutOffPositions.Clear();
 
-            using (Graphics gr = this.CreateGraphics())
+
+            for (int i = 0; i < line.Count - 1; i++)
             {
-                for (int i = 0; i < line.Count - 1; i++)
+                char c = line[i].c;
+                if (charWrap)
                 {
-                    char c = line[i].c;
-                    if (charWrap)
+                    //char wrapping
+                    cutOff = i + 1;
+                }
+                else
+                {
+                    //word wrapping
+                    if (IsCJKLetter(c))//in CJK languages cutoff can be in any letter
                     {
-                        //char wrapping
-                        cutOff = i + 1;
+                        cutOff = i;
                     }
                     else
+                    if (!char.IsLetterOrDigit(c) && c != '_' && c != '\'' && c != '\xa0'
+                        && ((c != '.' && c != ',') || (i < line.Count - 1 && !char.IsDigit(line[i + 1].c))))//dot before digit
+                        cutOff = Math.Min(i + 1, line.Count - 1);
+                }
+
+                Size charSize = GetCharSize(Font, c);
+                charWidths[i] = charSize.Width;
+                segmentWidth += charSize.Width;
+
+                segmentLength++;
+
+                if (segmentLength >= maxCharsPerLine || segmentWidth > maxLineWidth)
+                {
+                    if (cutOff == 0 || (cutOffPositions.Count > 0 && cutOff == cutOffPositions[cutOffPositions.Count - 1]))
+                        cutOff = i + 1;
+                    cutOffPositions.Add(cutOff);
+                    segmentLength = 1 + i - cutOff;
+
+                    //Reset sement width, by DaiXu61 2017.4.18
+                    segmentWidth = 0f;
+                    for (int j = 0; j < segmentLength; j++)
                     {
-                        //word wrapping
-                        if (IsCJKLetter(c))//in CJK languages cutoff can be in any letter
-                        {
-                            cutOff = i;
-                        }
-                        else
-                        if (!char.IsLetterOrDigit(c) && c != '_' && c != '\'' && c != '\xa0'
-                            && ((c != '.' && c != ',') || (i<line.Count-1 && !char.IsDigit(line[i + 1].c))))//dot before digit
-                            cutOff = Math.Min(i + 1, line.Count - 1);
+                        segmentWidth += charWidths[i - j];
                     }
 
-                    SizeF charSize = FastColoredTextBox.GetCharSize(gr, Font, c);
-                    charWidths[i] = charSize.Width;
-                    segmentWidth += charSize.Width;
-
-                    segmentLength++;
-
-                    if (segmentLength >= maxCharsPerLine || segmentWidth> maxLineWidth)
-                    {
-                        if (cutOff == 0 || (cutOffPositions.Count > 0 && cutOff == cutOffPositions[cutOffPositions.Count - 1]))
-                            cutOff = i + 1;
-                        cutOffPositions.Add(cutOff);
-                        segmentLength = 1 + i - cutOff;
-
-                        //Reset sement width, by DaiXu61 2017.4.18
-                        segmentWidth = 0f;
-                        for (int j = 0; j < segmentLength; j++)
-                        {
-                            segmentWidth += charWidths[i - j];
-                        }
-
-                        maxCharsPerLine = maxCharsPerSecondaryLine;
-                    }
+                    maxCharsPerLine = maxCharsPerSecondaryLine;
                 }
             }
         }
@@ -5944,7 +5956,7 @@ namespace FastColoredTextBoxNS
             point.Offset(HorizontalScroll.Value, VerticalScroll.Value);
             point.Offset(-LeftIndent - Paddings.Left, 0);
             int iLine = YtoLineIndex(point.Y);
-            var x = (int) Math.Round((float) point.X/CharWidth)
+            var x = (int)Math.Round((float)point.X / CharWidth);
             if (x < 0) x = 0;
             return new Place(x, iLine);
         }
@@ -6279,7 +6291,7 @@ namespace FastColoredTextBoxNS
             {
                 startIndex += LineInfos[place.iLine].wordWrapIndent;
             }
-            int x = GetWidth(place.iLine, startIndex, place.iChar);
+            int x = GetStringWidth(place.iLine, startIndex, place.iChar);
             //
             y = y - VerticalScroll.Value;
             x = LeftIndent + Paddings.Left + x - HorizontalScroll.Value;
@@ -6287,22 +6299,19 @@ namespace FastColoredTextBoxNS
             return new Point(x, y);
         }
 
-        public int GetWidth(int iLine, int start, int end)
+        public int GetStringWidth(int iLine, int start, int end)
         {
             var line = lines[iLine];
             if (start > end || end > line.Count)
             {
                 return 0;
             }
-            float width = 0f;
-            using (Graphics gr = this.CreateGraphics())
+            int width = 0;
+            for (int i = start; i < end; i++)
             {
-                for (int i = start; i < end; i++)
-                {
-                    width += GetCharSize(gr, Font, line[i].c).Width;
-                }
+                width += GetCharSize(Font, line[i].c).Width;
             }
-            return (int) width;
+            return width;
         }
 
         /// <summary>

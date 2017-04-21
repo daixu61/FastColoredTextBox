@@ -125,8 +125,8 @@ namespace FastColoredTextBoxNS
             using(var f = new Font(range.tb.Font, FontStyle))
             {
                 Line line = range.tb[range.Start.iLine];
-                float y = position.Y + range.tb.LineInterval/2;
-                float x = position.X;// - range.tb.CharWidth/3;
+                int y = position.Y + range.tb.LineInterval/2;
+                int x = position.X;// - range.tb.CharWidth/3;
 
                 if (ForeBrush == null)
                     ForeBrush = new SolidBrush(range.tb.ForeColor);
@@ -135,7 +135,7 @@ namespace FastColoredTextBoxNS
                 for (int i = range.Start.iChar; i < range.End.iChar; i++)
                 {
                     char c = line[i].c;
-                    SizeF size = FastColoredTextBox.GetCharSize(gr, f, line[i].c);
+                    Size size = range.tb.GetCharSize(f, line[i].c);
                     gr.DrawString(c.ToString(), f, ForeBrush, x, y, StringFormat);
                     x += size.Width;
                 }
