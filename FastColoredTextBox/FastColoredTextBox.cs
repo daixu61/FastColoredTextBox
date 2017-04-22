@@ -5405,25 +5405,26 @@ namespace FastColoredTextBoxNS
             {
                 //render by custom styles
                 StyleIndex currentStyleIndex = StyleIndex.None;
+                int iLastFlushedChar = firstChar - 1;
 
-                // Actual postion of char, by DaiXu61 2017.4.20
-                int x = startX;
-                int iChar;
-                for (iChar = firstChar; iChar <= lastChar; iChar++)
+                Point pos;  // Actual postion of char, by DaiXu61 2017.4.20
+
+                for (int iChar = firstChar; iChar <= lastChar; iChar++)
                 {
                     StyleIndex style = line[from + iChar].style;
                     if (currentStyleIndex != style)
                     {
+                        pos = PlaceToPoint(new Place(iLastFlushedChar + 1, iLine));
                         FlushRendering(gr, currentStyleIndex,
-                                       new Point(x, y),
-                                       new Range(this, from + iChar - 1 , iLine, from + iChar, iLine));
+                                       new Point(pos.X, y),
+                                       new Range(this, from + iLastFlushedChar + 1, iLine, from + iChar, iLine));
+                        iLastFlushedChar = iChar - 1;
                         currentStyleIndex = style;
-                        x += GetCharSize(this.Font, line[from + iChar].c).Width;
                     }
                 }
-                FlushRendering(gr, currentStyleIndex,
-                                new Point(x, y),
-                                new Range(this, from + iChar, iLine, from + lastChar + 1, iLine));
+                pos = PlaceToPoint(new Place(iLastFlushedChar + 1, iLine));
+                FlushRendering(gr, currentStyleIndex, new Point(pos.X, y),
+                               new Range(this, from + iLastFlushedChar + 1, iLine, from + lastChar + 1, iLine));
             }
 
             //draw selection
@@ -5439,9 +5440,9 @@ namespace FastColoredTextBoxNS
                 textRange = Selection.GetIntersectionWith(textRange);
                 if (textRange != null && SelectionStyle != null)
                 {
-                    //SelectionStyle.Draw(gr,
-                    //    new Point(startX + GetStringWidth(textRange.Start.iLine, from, textRange.Start.iChar), y + 1),
-                    //    textRange);
+                    SelectionStyle.Draw(gr,
+                        new Point(startX + GetStringWidth(textRange.Start.iLine, from, textRange.Start.iChar), y + 1),
+                        textRange);
                 }
             }
         }
@@ -6314,7 +6315,7 @@ namespace FastColoredTextBoxNS
             return new Point(x, y);
         }
 
-        int GetStringWidth(int iLine, int start, int end)
+        public int GetStringWidth(int iLine, int start, int end)
         {
             var line = lines[iLine];
             if (start > end || end > line.Count)
