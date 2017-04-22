@@ -127,9 +127,9 @@ namespace FastColoredTextBoxNS
         private Size localAutoScrollMinSize;
 
         // Cache char width, by DaiXu61, 2017.4.21
-        private Dictionary<Font, Dictionary<char,int>> charWidthCache = new Dictionary<Font, Dictionary<char, int>>();
+        private static Dictionary<Font, Dictionary<char,int>> charWidthCache = new Dictionary<Font, Dictionary<char, int>>();
         private const TextFormatFlags textFormatFlags =
-            TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix | TextFormatFlags.PreserveGraphicsClipping;
+            TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix ;
 
         /// <summary>
         /// Constructor
@@ -2893,18 +2893,18 @@ namespace FastColoredTextBoxNS
 
         public Size GetCharSize(Font font, char c)
         {
-            //SizeF sz3 = gr.MeasureString("<" + c.ToString() + ">", font);
-            //SizeF sz2 = gr.MeasureString("<>", font);
+            
             //return new SizeF(sz3.Width - sz2.Width + 1, /*sz2.Height*/font.Height);
-            Size size;
+            
             if (!charWidthCache.ContainsKey(font))
             {
                 charWidthCache.Add(font, new Dictionary<char, int>());
             }
             if (!charWidthCache[font].ContainsKey(c))
             {
-                size = TextRenderer.MeasureText(c.ToString(), font, new Size(short.MaxValue, short.MaxValue), textFormatFlags);
-                charWidthCache[font].Add(c, size.Width);
+                Size sz3 = TextRenderer.MeasureText("<"+c.ToString()+">", font, new Size(short.MaxValue, short.MaxValue), textFormatFlags);
+                Size sz2 = TextRenderer.MeasureText("<>", font, new Size(short.MaxValue, short.MaxValue), textFormatFlags);
+                charWidthCache[font].Add(c, sz3.Width - sz2.Width);
             }
             return new Size(charWidthCache[font][c], font.Height);
         }
@@ -3258,8 +3258,7 @@ namespace FastColoredTextBoxNS
             if (maxCharsPerLine < 1)
                 maxCharsPerLine = 1;
 
-            var charWidths = new float[line.Count];
-            float segmentWidth=0f;
+            int segmentWidth = 0;
             int segmentLength = 0;
             int cutOff = 0;
             cutOffPositions.Clear();
@@ -3286,8 +3285,7 @@ namespace FastColoredTextBoxNS
                         cutOff = Math.Min(i + 1, line.Count - 1);
                 }
 
-                Size charSize = GetCharSize(Font, c);
-                charWidths[i] = charSize.Width;
+                Size charSize = GetCharSize(this.Font, c);
                 segmentWidth += charSize.Width;
 
                 segmentLength++;
@@ -3300,10 +3298,10 @@ namespace FastColoredTextBoxNS
                     segmentLength = 1 + i - cutOff;
 
                     //Reset sement width, by DaiXu61 2017.4.18
-                    segmentWidth = 0f;
+                    segmentWidth = 0;
                     for (int j = 0; j < segmentLength; j++)
                     {
-                        segmentWidth += charWidths[i - j];
+                        segmentWidth += GetCharSize(this.Font, line[i - j].c).Width;
                     }
 
                     maxCharsPerLine = maxCharsPerSecondaryLine;
@@ -5930,20 +5928,28 @@ namespace FastColoredTextBoxNS
                 iWordWrapLine--;
                 y -= CharHeight;
             } while (y > point.Y);
-            if (iWordWrapLine < 0) iWordWrapLine = 0;
+            if (iWordWrapLine < 0)
+            {
+                iWordWrapLine = 0;
+            }
             //
             int start = LineInfos[iLine].GetWordWrapStringStartPosition(iWordWrapLine);
             int finish = LineInfos[iLine].GetWordWrapStringFinishPosition(iWordWrapLine, lines[iLine]);
-            var x = (int) Math.Round((float) point.X/CharWidth);
+            int p = 0;
             if (iWordWrapLine > 0)
-                x -= LineInfos[iLine].wordWrapIndent;
-
-            x = x < 0 ? start : start + x;
-            if (x > finish)
-                x = finish + 1;
-            if (x > lines[iLine].Count)
-                x = lines[iLine].Count;
-
+            {
+                p += LineInfos[iLine].wordWrapIndent * CharWidth;
+            }
+            int x = start;
+            for (;x<=finish;x++)
+            {
+                int charWidth = GetCharSize(this.Font, lines[iLine][x].c).Width;
+                p += charWidth;
+                if (p >= point.X)
+                {
+                    break;
+                }
+            }
 #if debug
             Console.WriteLine("PointToPlace: " + sw.ElapsedMilliseconds);
 #endif
@@ -5957,7 +5963,10 @@ namespace FastColoredTextBoxNS
             point.Offset(-LeftIndent - Paddings.Left, 0);
             int iLine = YtoLineIndex(point.Y);
             var x = (int)Math.Round((float)point.X / CharWidth);
-            if (x < 0) x = 0;
+            if (x < 0)
+            {
+                x = 0;
+            }
             return new Place(x, iLine);
         }
 
@@ -6299,7 +6308,7 @@ namespace FastColoredTextBoxNS
             return new Point(x, y);
         }
 
-        public int GetStringWidth(int iLine, int start, int end)
+        int GetStringWidth(int iLine, int start, int end)
         {
             var line = lines[iLine];
             if (start > end || end > line.Count)
