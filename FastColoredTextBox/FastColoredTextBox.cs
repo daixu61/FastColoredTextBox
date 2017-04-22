@@ -5405,30 +5405,33 @@ namespace FastColoredTextBoxNS
             {
                 //render by custom styles
                 StyleIndex currentStyleIndex = StyleIndex.None;
-                int iLastFlushedChar = firstChar - 1;
-                Point pos;  // Actual postion of char, by DaiXu61 2017.4.20
 
-                for (int iChar = firstChar; iChar <= lastChar; iChar++)
+                // Actual postion of char, by DaiXu61 2017.4.20
+                int x = startX;
+                int iChar;
+                for (iChar = firstChar; iChar <= lastChar; iChar++)
                 {
                     StyleIndex style = line[from + iChar].style;
                     if (currentStyleIndex != style)
                     {
-                        pos = PlaceToPoint(new Place(iLastFlushedChar + 1, iLine));
                         FlushRendering(gr, currentStyleIndex,
-                                       //new Point(startX + (iLastFlushedChar + 1)*CharWidth,y,
-                                       new Point(startX + pos.X, y),
-                                       new Range(this, from + iLastFlushedChar + 1, iLine, from + iChar, iLine));
-                        iLastFlushedChar = iChar - 1;
+                                       new Point(x, y),
+                                       new Range(this, from + iChar - 1 , iLine, from + iChar, iLine));
                         currentStyleIndex = style;
+                        x += GetCharSize(this.Font, line[from + iChar].c).Width;
                     }
                 }
-                pos = PlaceToPoint(new Place(iLastFlushedChar + 1, iLine));
-                FlushRendering(gr, currentStyleIndex, new Point(startX + pos.X, y),
-                               new Range(this, from + iLastFlushedChar + 1, iLine, from + lastChar + 1, iLine));
+                FlushRendering(gr, currentStyleIndex,
+                                new Point(x, y),
+                                new Range(this, from + iChar, iLine, from + lastChar + 1, iLine));
             }
 
             //draw selection
-            if (SelectionHighlightingForLineBreaksEnabled  && iWordWrapLine == lineInfo.WordWrapStringsCount - 1) lastChar++;//draw selection for CR
+            if (SelectionHighlightingForLineBreaksEnabled
+                && iWordWrapLine == lineInfo.WordWrapStringsCount - 1)
+            {
+                lastChar++;//draw selection for CR
+            }
             if (!Selection.IsEmpty && lastChar >= firstChar)
             {
                 gr.SmoothingMode = SmoothingMode.None;
@@ -5436,8 +5439,9 @@ namespace FastColoredTextBoxNS
                 textRange = Selection.GetIntersectionWith(textRange);
                 if (textRange != null && SelectionStyle != null)
                 {
-                    SelectionStyle.Draw(gr, new Point(startX + (textRange.Start.iChar - from)*CharWidth, 1 + y),
-                                        textRange);
+                    //SelectionStyle.Draw(gr,
+                    //    new Point(startX + GetStringWidth(textRange.Start.iLine, from, textRange.Start.iChar), y + 1),
+                    //    textRange);
                 }
             }
         }
@@ -6296,14 +6300,16 @@ namespace FastColoredTextBoxNS
             y += iWordWrapIndex*CharHeight;
             // Get actual start Point, by DaiXu61 2017.4.20
             int startIndex = LineInfos[place.iLine].GetWordWrapStringStartPosition(iWordWrapIndex);
+            int offset = LeftIndent + Paddings.Left;
             if (iWordWrapIndex > 0)
             {
                 startIndex += LineInfos[place.iLine].wordWrapIndent;
+                offset += LineInfos[place.iLine].wordWrapIndent * CharWidth;
             }
-            int x = GetStringWidth(place.iLine, startIndex, place.iChar);
             //
-            y = y - VerticalScroll.Value;
-            x = LeftIndent + Paddings.Left + x - HorizontalScroll.Value;
+            int x = offset + GetStringWidth(place.iLine, startIndex, place.iChar);
+            y-= VerticalScroll.Value;
+            x-= HorizontalScroll.Value;
 
             return new Point(x, y);
         }
